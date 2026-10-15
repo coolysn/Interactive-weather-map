@@ -1,0 +1,268 @@
+{
+  "layer": "precipitation",
+  "source": "Keskkonnaagentuur (CC-BY 4.0): KAIA radari komposiit, GeoServer nowcasting",
+  "updated": "2026-10-15T08:27:41Z",
+  "projection": "EPSG:4326",
+  "bounds": [
+    19.992505676766545,
+    56.288151550042855,
+    30.121694438437306,
+    61.50867591352509
+  ],
+  "size": [
+    1024,
+    1024
+  ],
+  "encoding": {
+    "R": "mm/h = exp(R/255 * ln(51)) - 1",
+    "G": "255 = radari katvuses, 0 = andmed puuduvad"
+  },
+  "frames": [
+    {
+      "timestamp": "2026-10-15T06:30:06Z",
+      "kind": "observed",
+      "url": "radar_20261015T063006Z.png",
+      "preview": "preview_20261015T063006Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T06:35:03Z",
+      "kind": "observed",
+      "url": "radar_20261015T063503Z.png",
+      "preview": "preview_20261015T063503Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T06:40:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T064001Z.png",
+      "preview": "preview_20261015T064001Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T06:45:07Z",
+      "kind": "observed",
+      "url": "radar_20261015T064507Z.png",
+      "preview": "preview_20261015T064507Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T06:50:03Z",
+      "kind": "observed",
+      "url": "radar_20261015T065003Z.png",
+      "preview": "preview_20261015T065003Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T06:55:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T065501Z.png",
+      "preview": "preview_20261015T065501Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:00:07Z",
+      "kind": "observed",
+      "url": "radar_20261015T070007Z.png",
+      "preview": "preview_20261015T070007Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:05:03Z",
+      "kind": "observed",
+      "url": "radar_20261015T070503Z.png",
+      "preview": "preview_20261015T070503Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:10:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T071001Z.png",
+      "preview": "preview_20261015T071001Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:15:06Z",
+      "kind": "observed",
+      "url": "radar_20261015T071506Z.png",
+      "preview": "preview_20261015T071506Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:20:03Z",
+      "kind": "observed",
+      "url": "radar_20261015T072003Z.png",
+      "preview": "preview_20261015T072003Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:25:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T072501Z.png",
+      "preview": "preview_20261015T072501Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:30:07Z",
+      "kind": "observed",
+      "url": "radar_20261015T073007Z.png",
+      "preview": "preview_20261015T073007Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:35:03Z",
+      "kind": "observed",
+      "url": "radar_20261015T073503Z.png",
+      "preview": "preview_20261015T073503Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:40:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T074001Z.png",
+      "preview": "preview_20261015T074001Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:45:07Z",
+      "kind": "observed",
+      "url": "radar_20261015T074507Z.png",
+      "preview": "preview_20261015T074507Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:50:03Z",
+      "kind": "observed",
+      "url": "radar_20261015T075003Z.png",
+      "preview": "preview_20261015T075003Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T07:55:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T075501Z.png",
+      "preview": "preview_20261015T075501Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:00:07Z",
+      "kind": "observed",
+      "url": "radar_20261015T080007Z.png",
+      "preview": "preview_20261015T080007Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:05:04Z",
+      "kind": "observed",
+      "url": "radar_20261015T080504Z.png",
+      "preview": "preview_20261015T080504Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:10:01Z",
+      "kind": "observed",
+      "url": "radar_20261015T081001Z.png",
+      "preview": "preview_20261015T081001Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:15:07Z",
+      "kind": "observed",
+      "url": "radar_20261015T081507Z.png",
+      "preview": "preview_20261015T081507Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:20:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T082000Z.png",
+      "preview": "preview_20261015T082000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:25:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T082500Z.png",
+      "preview": "preview_20261015T082500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:30:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T083000Z.png",
+      "preview": "preview_20261015T083000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:35:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T083500Z.png",
+      "preview": "preview_20261015T083500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:40:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T084000Z.png",
+      "preview": "preview_20261015T084000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:45:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T084500Z.png",
+      "preview": "preview_20261015T084500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:50:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T085000Z.png",
+      "preview": "preview_20261015T085000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T08:55:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T085500Z.png",
+      "preview": "preview_20261015T085500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:00:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T090000Z.png",
+      "preview": "preview_20261015T090000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:05:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T090500Z.png",
+      "preview": "preview_20261015T090500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:10:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T091000Z.png",
+      "preview": "preview_20261015T091000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:15:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T091500Z.png",
+      "preview": "preview_20261015T091500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:20:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T092000Z.png",
+      "preview": "preview_20261015T092000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:25:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T092500Z.png",
+      "preview": "preview_20261015T092500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:30:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T093000Z.png",
+      "preview": "preview_20261015T093000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:35:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T093500Z.png",
+      "preview": "preview_20261015T093500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:40:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T094000Z.png",
+      "preview": "preview_20261015T094000Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:45:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T094500Z.png",
+      "preview": "preview_20261015T094500Z.png"
+    },
+    {
+      "timestamp": "2026-10-15T09:50:00Z",
+      "kind": "nowcast",
+      "url": "radar_20261015T095000Z.png",
+      "preview": "preview_20261015T095000Z.png"
+    }
+  ]
+}
