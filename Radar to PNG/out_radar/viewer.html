@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radari vaatur</title>
+<style>
+  :root {
+    --bg: #111418; --panel: #1b2027; --text: #e6e9ee; --muted: #8a93a0;
+    --obs: #4ea1ff; --now: #ffb547; --line: #2a313b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 16px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 18px; margin: 0; }
+  .updated { color: var(--muted); font-size: 12px; }
+  .stage { position: relative; margin-top: 12px; background: #000; border-radius: 8px; overflow: hidden;
+           aspect-ratio: 1 / 1; }
+  .stage img, .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage img { image-rendering: pixelated; }
+  .badge { position: absolute; top: 10px; left: 10px; padding: 4px 10px; border-radius: 999px;
+           font-weight: 600; font-size: 13px; color: #111; }
+  .badge.observed { background: var(--obs); }
+  .badge.nowcast { background: var(--now); }
+  .clock { position: absolute; top: 10px; right: 10px; padding: 4px 10px; border-radius: 6px;
+           background: rgba(0,0,0,.6); font-variant-numeric: tabular-nums; font-size: 15px; }
+  .controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px;
+           padding: 6px 12px; font: inherit; cursor: pointer; min-width: 44px; }
+  button:hover { border-color: var(--muted); }
+  .track { position: relative; flex: 1; height: 28px; }
+  .segments { position: absolute; left: 0; right: 0; top: 11px; height: 6px; display: flex; border-radius: 3px; overflow: hidden; }
+  .segments span { flex: 1; }
+  .segments .observed { background: var(--obs); }
+  .segments .nowcast { background: var(--now); }
+  input[type=range] { position: absolute; inset: 0; width: 100%; margin: 0; background: transparent;
+                      -webkit-appearance: none; appearance: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { background: transparent; height: 28px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 28px; border-radius: 4px;
+                                            background: #fff; border: 2px solid #111; }
+  input[type=range]::-moz-range-track { background: transparent; }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 24px; border-radius: 4px; background: #fff; border: 2px solid #111; }
+  .ticks { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin: 4px 56px 0 56px; }
+  .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 16px; font-size: 12px; color: var(--muted); }
+  .scale { display: flex; gap: 0; }
+  .sw { display: flex; flex-direction: column; align-items: center; width: 34px; }
+  .sw span { width: 100%; height: 10px; }
+  .sw small { margin-top: 2px; }
+  .key { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .info { margin-top: 10px; font-size: 12px; color: var(--muted); }
+  @media (max-width: 520px) { .ticks { margin: 4px 0 0 0; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Radari vaatur</h1>
+    <span class="updated" id="updated"></span>
+  </header>
+
+  <div class="stage">
+    <img id="frame" alt="radari kaader">
+    <svg id="overlay" viewBox="0 0 1024 1024" preserveAspectRatio="none"></svg>
+    <span class="badge" id="badge"></span>
+    <span class="clock" id="clock"></span>
+  </div>
+
+  <div class="controls">
+    <button id="play" title="Esita / peata (tühik)">▶</button>
+    <div class="track">
+      <div class="segments" id="segments"></div>
+      <input type="range" id="slider" min="0" value="0" step="1" aria-label="aeg">
+    </div>
+    <button id="speed" title="Kiirus">1×</button>
+  </div>
+  <div class="ticks"><span id="tStart"></span><span id="tNow"></span><span id="tEnd"></span></div>
+
+  <div class="legend">
+    <span class="key"><span class="dot" style="background:var(--obs)"></span>vaatlus</span>
+    <span class="key"><span class="dot" style="background:var(--now)"></span>prognoos (nowcast)</span>
+    <span class="key"><span class="dot" style="background:#ffe600;border:1px solid #000"></span>välk (±5 min)</span>
+    <span class="key"><span class="dot" style="background:#ebebeb"></span>radari katvus</span>
+  </div>
+  <div class="legend">
+    <span>mm/h</span>
+    <span class="scale" id="scale"></span>
+  </div>
+  <p class="info" id="info"></p>
+</main>
+
+<script>
+const META = {"layer": "precipitation", "source": "Keskkonnaagentuur (CC-BY 4.0): KAIA radari komposiit, GeoServer nowcasting", "updated": "2026-10-15T08:27:41Z", "projection": "EPSG:4326", "bounds": [19.992505676766545, 56.288151550042855, 30.121694438437306, 61.50867591352509], "size": [1024, 1024], "encoding": {"R": "mm/h = exp(R/255 * ln(51)) - 1", "G": "255 = radari katvuses, 0 = andmed puuduvad"}, "frames": [{"timestamp": "2026-10-15T06:30:06Z", "kind": "observed", "url": "radar_20261015T063006Z.png", "preview": "preview_20261015T063006Z.png"}, {"timestamp": "2026-10-15T06:35:03Z", "kind": "observed", "url": "radar_20261015T063503Z.png", "preview": "preview_20261015T063503Z.png"}, {"timestamp": "2026-10-15T06:40:01Z", "kind": "observed", "url": "radar_20261015T064001Z.png", "preview": "preview_20261015T064001Z.png"}, {"timestamp": "2026-10-15T06:45:07Z", "kind": "observed", "url": "radar_20261015T064507Z.png", "preview": "preview_20261015T064507Z.png"}, {"timestamp": "2026-10-15T06:50:03Z", "kind": "observed", "url": "radar_20261015T065003Z.png", "preview": "preview_20261015T065003Z.png"}, {"timestamp": "2026-10-15T06:55:01Z", "kind": "observed", "url": "radar_20261015T065501Z.png", "preview": "preview_20261015T065501Z.png"}, {"timestamp": "2026-10-15T07:00:07Z", "kind": "observed", "url": "radar_20261015T070007Z.png", "preview": "preview_20261015T070007Z.png"}, {"timestamp": "2026-10-15T07:05:03Z", "kind": "observed", "url": "radar_20261015T070503Z.png", "preview": "preview_20261015T070503Z.png"}, {"timestamp": "2026-10-15T07:10:01Z", "kind": "observed", "url": "radar_20261015T071001Z.png", "preview": "preview_20261015T071001Z.png"}, {"timestamp": "2026-10-15T07:15:06Z", "kind": "observed", "url": "radar_20261015T071506Z.png", "preview": "preview_20261015T071506Z.png"}, {"timestamp": "2026-10-15T07:20:03Z", "kind": "observed", "url": "radar_20261015T072003Z.png", "preview": "preview_20261015T072003Z.png"}, {"timestamp": "2026-10-15T07:25:01Z", "kind": "observed", "url": "radar_20261015T072501Z.png", "preview": "preview_20261015T072501Z.png"}, {"timestamp": "2026-10-15T07:30:07Z", "kind": "observed", "url": "radar_20261015T073007Z.png", "preview": "preview_20261015T073007Z.png"}, {"timestamp": "2026-10-15T07:35:03Z", "kind": "observed", "url": "radar_20261015T073503Z.png", "preview": "preview_20261015T073503Z.png"}, {"timestamp": "2026-10-15T07:40:01Z", "kind": "observed", "url": "radar_20261015T074001Z.png", "preview": "preview_20261015T074001Z.png"}, {"timestamp": "2026-10-15T07:45:07Z", "kind": "observed", "url": "radar_20261015T074507Z.png", "preview": "preview_20261015T074507Z.png"}, {"timestamp": "2026-10-15T07:50:03Z", "kind": "observed", "url": "radar_20261015T075003Z.png", "preview": "preview_20261015T075003Z.png"}, {"timestamp": "2026-10-15T07:55:01Z", "kind": "observed", "url": "radar_20261015T075501Z.png", "preview": "preview_20261015T075501Z.png"}, {"timestamp": "2026-10-15T08:00:07Z", "kind": "observed", "url": "radar_20261015T080007Z.png", "preview": "preview_20261015T080007Z.png"}, {"timestamp": "2026-10-15T08:05:04Z", "kind": "observed", "url": "radar_20261015T080504Z.png", "preview": "preview_20261015T080504Z.png"}, {"timestamp": "2026-10-15T08:10:01Z", "kind": "observed", "url": "radar_20261015T081001Z.png", "preview": "preview_20261015T081001Z.png"}, {"timestamp": "2026-10-15T08:15:07Z", "kind": "observed", "url": "radar_20261015T081507Z.png", "preview": "preview_20261015T081507Z.png"}, {"timestamp": "2026-10-15T08:20:00Z", "kind": "nowcast", "url": "radar_20261015T082000Z.png", "preview": "preview_20261015T082000Z.png"}, {"timestamp": "2026-10-15T08:25:00Z", "kind": "nowcast", "url": "radar_20261015T082500Z.png", "preview": "preview_20261015T082500Z.png"}, {"timestamp": "2026-10-15T08:30:00Z", "kind": "nowcast", "url": "radar_20261015T083000Z.png", "preview": "preview_20261015T083000Z.png"}, {"timestamp": "2026-10-15T08:35:00Z", "kind": "nowcast", "url": "radar_20261015T083500Z.png", "preview": "preview_20261015T083500Z.png"}, {"timestamp": "2026-10-15T08:40:00Z", "kind": "nowcast", "url": "radar_20261015T084000Z.png", "preview": "preview_20261015T084000Z.png"}, {"timestamp": "2026-10-15T08:45:00Z", "kind": "nowcast", "url": "radar_20261015T084500Z.png", "preview": "preview_20261015T084500Z.png"}, {"timestamp": "2026-10-15T08:50:00Z", "kind": "nowcast", "url": "radar_20261015T085000Z.png", "preview": "preview_20261015T085000Z.png"}, {"timestamp": "2026-10-15T08:55:00Z", "kind": "nowcast", "url": "radar_20261015T085500Z.png", "preview": "preview_20261015T085500Z.png"}, {"timestamp": "2026-10-15T09:00:00Z", "kind": "nowcast", "url": "radar_20261015T090000Z.png", "preview": "preview_20261015T090000Z.png"}, {"timestamp": "2026-10-15T09:05:00Z", "kind": "nowcast", "url": "radar_20261015T090500Z.png", "preview": "preview_20261015T090500Z.png"}, {"timestamp": "2026-10-15T09:10:00Z", "kind": "nowcast", "url": "radar_20261015T091000Z.png", "preview": "preview_20261015T091000Z.png"}, {"timestamp": "2026-10-15T09:15:00Z", "kind": "nowcast", "url": "radar_20261015T091500Z.png", "preview": "preview_20261015T091500Z.png"}, {"timestamp": "2026-10-15T09:20:00Z", "kind": "nowcast", "url": "radar_20261015T092000Z.png", "preview": "preview_20261015T092000Z.png"}, {"timestamp": "2026-10-15T09:25:00Z", "kind": "nowcast", "url": "radar_20261015T092500Z.png", "preview": "preview_20261015T092500Z.png"}, {"timestamp": "2026-10-15T09:30:00Z", "kind": "nowcast", "url": "radar_20261015T093000Z.png", "preview": "preview_20261015T093000Z.png"}, {"timestamp": "2026-10-15T09:35:00Z", "kind": "nowcast", "url": "radar_20261015T093500Z.png", "preview": "preview_20261015T093500Z.png"}, {"timestamp": "2026-10-15T09:40:00Z", "kind": "nowcast", "url": "radar_20261015T094000Z.png", "preview": "preview_20261015T094000Z.png"}, {"timestamp": "2026-10-15T09:45:00Z", "kind": "nowcast", "url": "radar_20261015T094500Z.png", "preview": "preview_20261015T094500Z.png"}, {"timestamp": "2026-10-15T09:50:00Z", "kind": "nowcast", "url": "radar_20261015T095000Z.png", "preview": "preview_20261015T095000Z.png"}]};
+const LIGHTNING = {"updated": "2026-10-15T08:27:41Z", "since": "2026-10-15T06:27:41Z", "strikes": []};
+const LEGEND = [[0.05, [180, 215, 255]], [0.1, [130, 185, 250]], [0.3, [70, 140, 240]], [0.5, [30, 100, 220]], [1, [40, 170, 70]], [2, [120, 200, 40]], [4, [250, 220, 30]], [8, [250, 140, 20]], [16, [230, 40, 30]], [50, [200, 30, 200]]];
+
+const frames = META.frames;
+const [lonMin, latMin, lonMax, latMax] = META.bounds;
+const W = 1024, H = 1024;
+const toPx = (lat, lon) => [(lon - lonMin) / (lonMax - lonMin) * W, (latMax - lat) / (latMax - latMin) * H];
+
+const fmt = (iso, withDate) => new Date(iso).toLocaleString("et-EE", {
+  timeZone: "Europe/Tallinn", hour: "2-digit", minute: "2-digit",
+  ...(withDate ? { day: "numeric", month: "short" } : {})
+});
+
+const $ = id => document.getElementById(id);
+const slider = $("slider"), img = $("frame"), overlay = $("overlay");
+
+// eellae kõik kaadrid, et liugur oleks sujuv
+frames.forEach(f => { const i = new Image(); i.src = f.preview; });
+
+// ajatelje värvilised lõigud
+$("segments").innerHTML = frames.map(f => `<span class="${f.kind}"></span>`).join("");
+slider.max = frames.length - 1;
+$("tStart").textContent = fmt(frames[0].timestamp);
+$("tEnd").textContent = fmt(frames[frames.length - 1].timestamp);
+const lastObs = frames.map(f => f.kind).lastIndexOf("observed");
+if (lastObs >= 0) $("tNow").textContent = "viimane vaatlus " + fmt(frames[lastObs].timestamp);
+$("updated").textContent = "uuendatud " + fmt(META.updated, true);
+
+// legend
+$("scale").innerHTML = LEGEND.map(([v, c]) =>
+  `<span class="sw"><span style="background:rgb(${c})"></span><small>${String(v).replace(".", ",")}</small></span>`).join("");
+
+// linnad orienteerumiseks
+const CITIES = [
+  ["Tallinn", 59.437, 24.754], ["Tartu", 58.378, 26.729], ["Pärnu", 58.385, 24.497],
+  ["Narva", 59.377, 28.190], ["Kuressaare", 58.252, 22.485], ["Haapsalu", 58.943, 23.541],
+  ["Rakvere", 59.346, 26.355], ["Viljandi", 58.364, 25.590], ["Võru", 57.834, 27.019],
+  ["Paide", 58.886, 25.557], ["Helsinki", 60.170, 24.938], ["Riia", 56.949, 24.105],
+];
+const cityLayer = CITIES.map(([n, lat, lon]) => {
+  const [x, y] = toPx(lat, lon);
+  return `<circle cx="${x}" cy="${y}" r="4" fill="#111"/>
+          <text x="${x + 7}" y="${y + 4}" font-size="15" fill="#111"
+                stroke="#fff" stroke-width="3" paint-order="stroke">${n}</text>`;
+}).join("");
+
+function render(i) {
+  const f = frames[i];
+  img.src = f.preview;
+  const badge = $("badge");
+  badge.textContent = f.kind === "observed" ? "VAATLUS" : "PROGNOOS";
+  badge.className = "badge " + f.kind;
+  $("clock").textContent = fmt(f.timestamp, true);
+
+  const t = Date.parse(f.timestamp);
+  const near = LIGHTNING.strikes.filter(s => Math.abs(Date.parse(s.timestamp) - t) <= 5 * 60e3);
+  const bolts = near.map(s => {
+    const [x, y] = toPx(s.lat, s.lon);
+    return `<circle cx="${x}" cy="${y}" r="5" fill="#ffe600" stroke="#000" stroke-width="1.5"/>`;
+  }).join("");
+  overlay.innerHTML = cityLayer + bolts;
+  $("info").textContent = `Kaader ${i + 1}/${frames.length} · ${f.url} · välke ±5 min: ${near.length}`;
+}
+
+let timer = null, speeds = [1, 2, 4], speedIdx = 0;
+function step() {
+  slider.value = (+slider.value + 1) % frames.length;
+  render(+slider.value);
+}
+function setPlaying(on) {
+  clearInterval(timer); timer = null;
+  if (on) timer = setInterval(step, 400 / speeds[speedIdx]);
+  $("play").textContent = on ? "❚❚" : "▶";
+}
+$("play").onclick = () => setPlaying(!timer);
+$("speed").onclick = () => {
+  speedIdx = (speedIdx + 1) % speeds.length;
+  $("speed").textContent = speeds[speedIdx] + "×";
+  if (timer) setPlaying(true);
+};
+slider.oninput = () => { setPlaying(false); render(+slider.value); };
+document.addEventListener("keydown", e => {
+  if (e.code === "Space") { e.preventDefault(); setPlaying(!timer); }
+  if (e.code === "ArrowRight") { setPlaying(false); slider.value = Math.min(+slider.value + 1, frames.length - 1); render(+slider.value); }
+  if (e.code === "ArrowLeft") { setPlaying(false); slider.value = Math.max(+slider.value - 1, 0); render(+slider.value); }
+});
+
+// alusta viimasest vaatlusest
+slider.value = Math.max(lastObs, 0);
+render(+slider.value);
+</script>
+</body>
+</html>
