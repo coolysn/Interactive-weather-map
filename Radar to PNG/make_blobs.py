@@ -129,6 +129,12 @@ def main():
     }
     (OUT / "blobs.json").write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
 
+    # Lihtne tekstiversioon UE jaoks (ei vaja JSON pluginat):
+    #   Nimi;Precipitation;CloudCover|Nimi;Precipitation;CloudCover|...
+    # UE: Parse Into Array "|" -> iga linn -> Parse Into Array ";" -> [0] nimi, [1] Precipitation, [2] CloudCover
+    txt = "|".join(f"{b['Name']};{b['Precipitation']:.3f};{b['CloudCover']:.3f}" for b in current["blobs"])
+    (OUT / "blobs.txt").write_text(txt, encoding="utf-8")
+
     print(f"blobs.json: {len(PLACES)} kohta, kaader {current['timestamp']} ({len(frames)} kaadrit kokku)")
     for b in current["blobs"]:
         flag = "" if b["Covered"] else "  (radari katvusest väljas)"

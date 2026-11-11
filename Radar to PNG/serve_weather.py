@@ -48,6 +48,14 @@ def update_loop():
 
 
 class Handler(SimpleHTTPRequestHandler):
+    # ütle brauserile/UE-le, et tekst on UTF-8 (muidu "Pärnu" -> "PÃ¤rnu")
+    extensions_map = {
+        **SimpleHTTPRequestHandler.extensions_map,
+        ".txt": "text/plain; charset=utf-8",
+        ".json": "application/json; charset=utf-8",
+        ".html": "text/html; charset=utf-8",
+    }
+
     def end_headers(self):
         # ära lase UE-l ega brauseril vana faili vahemälust võtta
         self.send_header("Cache-Control", "no-store")
